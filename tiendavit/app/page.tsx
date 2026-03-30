@@ -383,11 +383,10 @@ export default function HomePage() {
                 Producto destacado
               </p>
               <h2 className="mt-2 text-4xl font-bold">
-                Una misma faja, varias vistas
+                
               </h2>
               <p className="mt-3 max-w-2xl text-neutral-600">
-                Descubre cada detalle del producto desde una galería visual
-                cómoda y responsive.
+                
               </p>
             </div>
 
