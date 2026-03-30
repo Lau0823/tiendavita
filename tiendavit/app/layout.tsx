@@ -1,37 +1,30 @@
-
 import "./globals.css";
-import type { Metadata } from "next";
-import { DM_Serif_Display, Inter } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 
-const serif = DM_Serif_Display({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-serif",
-  display: "swap",
+  variable: "--font-inter",
 });
 
-const sans = Inter({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  variable: "--font-sans",
-  display: "swap",
+  variable: "--font-playfair",
 });
 
-export const metadata: Metadata = {
-  title: "embvit",
-  description: "productos Regeneradores",
+export const metadata = {
+  title: "FajaFit | Moldea tu figura con estilo",
+  description: "Landing page premium para venta de fajas",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="es" className={`${serif.variable} ${sans.variable}`}>
-      <body className=" mt-3 min-h-screen bg-neutral-950 text-neutral-50 antialiased">
+    <html lang="es">
+      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
         {children}
-      
       </body>
     </html>
   );

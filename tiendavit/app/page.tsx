@@ -1,449 +1,621 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
+  Menu,
+  X,
+  ShoppingCart,
   ArrowRight,
   CheckCircle2,
+  Star,
   ChevronLeft,
   ChevronRight,
-  CreditCard,
-  Menu,
+  Instagram,
+  Facebook,
+  Mail,
+  Phone,
+  MapPin,
+  ShieldCheck,
+  Sparkles,
+  Ruler,
+  HeartHandshake,
   Minus,
   Plus,
-  ShieldCheck,
-  ShoppingCart,
-  Star,
-  Truck,
-  Wallet,
-  X,
+  LogIn,
+  MessageCircle,
 } from "lucide-react";
 
-type Product = {
+type ProductPhoto = {
   id: number;
-  name: string;
-  category: string;
-  price: number;
-  oldPrice?: number;
-  badge?: string;
   image: string;
-  description: string;
 };
 
-type CartItem = Product & { quantity: number };
-
-type Testimonial = {
-  id: number;
-  name: string;
-  role: string;
-  photo: string;
-  text: string;
+type FaqItem = {
+  question: string;
+  answer: string;
 };
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Embriovit Tratamiento Capilar",
-    category: "Recuperación capilar",
-    price: 89900,
-    oldPrice: 119900,
-    badge: "Más vendido",
-    image: "/embvit.jpg",
-    description:
-      "Ayuda a fortalecer el folículo, reducir la caída y estimular el crecimiento del cabello.",
-  },
-  {
-    id: 2,
-    name: "Shampoo Embriovit",
-    category: "Limpieza y nutrición",
-    price: 54900,
-    badge: "Nuevo",
-    image: "/shampoojpg.jpg",
-    description:
-      "Limpieza suave que fortalece la raíz y mejora la salud del cuero cabelludo.",
-  },
-  {
-    id: 3,
-    name: "Kit Recuperación Total",
-    category: "Tratamiento completo",
-    price: 134900,
-    oldPrice: 169900,
-    badge: "Ahorra",
-    image: "/tratamientocapilar.jpg",
-    description:
-      "Rutina completa para restaurar el cabello, mejorar su fuerza y recuperar su vitalidad.",
-  },
-  {
-    id: 4,
-    name: "Serum Nutri Raíz",
-    category: "Cuidado avanzado",
-    price: 72900,
-    badge: "Glow",
-    image:
-      "https://i.pinimg.com/736x/73/dd/61/73dd61c98ff9b3a9bb774b8d096b1ec0.jpg",
-    description:
-      "Acompaña el ritual con una capa ligera de nutrición y acabado sedoso.",
-  },
-  {
-    id: 5,
-    name: "Ampolletas Revive",
-    category: "Shock reparador",
-    price: 67900,
-    image:
-      "https://i.pinimg.com/736x/74/5d/e4/745de4ce8ed50e5c63b49f51bfc5c22f.jpg",
-    description:
-      "Ideal para cabellos con daño visible, resequedad y falta de cuerpo.",
-  },
-  {
-    id: 6,
-    name: "Mascarilla Botanical Repair",
-    category: "Nutrición profunda",
-    price: 94900,
-    image:
-      "https://i.pinimg.com/736x/28/55/3b/28553b59c34531fedde9711f6d24c4ac.jpg",
-    description:
-      "Textura rica y premium para una experiencia de recuperación sensorial.",
-  },
-];
+export default function HomePage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [isAdded, setIsAdded] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-const heroSlides = [
-  { id: 1, image: "/embvit.jpg" },
-  { id: 2, image: "/shampoojpg.jpg" },
-  { id: 3, image: "/tratamientocapilar.jpg" },
-];
+  const mobileCarouselRef = useRef<HTMLDivElement | null>(null);
 
-const gallerySlides = [
-  {
-    id: 1,
-    image: "/embvit.jpg",
-    title: "Tratamiento intensivo",
-  },
-  {
-    id: 2,
-    image: "/shampoojpg.jpg",
-    title: "Limpieza fortalecedora",
-  },
-  {
-    id: 3,
-    image: "/tratamientocapilar.jpg",
-    title: "Recuperación completa",
-  },
-  {
-    id: 4,
-    image:
-      "https://i.pinimg.com/736x/73/dd/61/73dd61c98ff9b3a9bb774b8d096b1ec0.jpg",
-    title: "Nutrición avanzada",
-  },
-];
+  const accent = "#8E6AAE";
+  const accentDark = "#765392";
+  const accentSoft = "#F3ECF8";
+  const whatsappColor = "#25D366";
+  const whatsappHover = "#1ebe5d";
 
-const testimonials: Testimonial[] = [
-  {
-    id: 1,
-    name: "María Fernanda",
-    role: "Cliente",
-    photo:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80",
-    text: "Después de un proceso de salud difícil, mi cabello estaba muy débil. Embriovit me ayudó a verlo con más fuerza, brillo y vida.",
-  },
-  {
-    id: 2,
-    name: "Laura Sofía",
-    role: "Cliente",
-    photo:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=500&q=80",
-    text: "Lo que más me gustó fue sentir una rutina de cuidado completa. Mi cuero cabelludo se siente mejor y mi cabello se ve más sano.",
-  },
-  {
-    id: 3,
-    name: "Paula Andrea",
-    role: "Cliente",
-    photo:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=80",
-    text: "Me encantó el tratamiento y el shampoo. Siento menos caída, más volumen y una textura mucho más bonita.",
-  },
-];
+  const whatsappPhone = "573115813054"; // Cambia por tu número real
+  const whatsappMessage =
+    "Hola, quiero comprar la Faja Moldeadora Premium. ¿Está disponible?";
 
-const benefits = [
-  "Ayuda a fortalecer el folículo piloso.",
-  "Apoya la disminución de la caída del cabello.",
-  "Favorece el crecimiento de cabello nuevo.",
-  "Mejora la textura y el brillo.",
-  "Aporta nutrición y reparación intensiva.",
-  "Ayuda a controlar el frizz y dar más volumen.",
-];
+  const benefits = [
+    "Moldea tu cintura",
+    "Ajuste cómodo",
+    "Realza tu figura",
+    "Ideal para uso diario",
+    "Material transpirable",
+    "Más seguridad en ti",
+  ];
 
-const paymentMethods = [
-  {
-    title: "Tarjeta débito / crédito",
-    text: "Paga de forma rápida y segura con tus tarjetas principales.",
-    icon: CreditCard,
-  },
-  {
-    title: "Transferencia",
-    text: "Disponible para compras directas con confirmación rápida.",
-    icon: Wallet,
-  },
-  {
-    title: "Pago contra entrega",
-    text: "Ideal para clientes que prefieren pagar al recibir.",
-    icon: Truck,
-  },
-  {
-    title: "Compra protegida",
-    text: "Tus datos y tu pago viajan de forma segura.",
-    icon: ShieldCheck,
-  },
-];
-
-const currency = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
-
-function cn(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(" ");
-}
-
-export default function Page() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [heroSlide, setHeroSlide] = useState(0);
-  const [gallerySlide, setGallerySlide] = useState(0);
-  const [testimonialSlide, setTestimonialSlide] = useState(0);
-  const [cart, setCart] = useState<CartItem[]>([]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setHeroSlide((prev) => (prev + 1) % heroSlides.length);
-    }, 4500);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setGallerySlide((prev) => (prev + 1) % gallerySlides.length);
-    }, 4000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTestimonialSlide((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const cartCount = useMemo(
-    () => cart.reduce((acc, item) => acc + item.quantity, 0),
-    [cart]
+  const productPhotos: ProductPhoto[] = useMemo(
+    () => [
+      {
+        id: 1,
+        image: "/17018732871701873287Body Reloj de Arena 1.jpg",
+      },
+      {
+        id: 2,
+        image: "/17018732871701873287Body Reloj 2.jpeg",
+      },
+      {
+        id: 3,
+        image: "/17018732871701873287Body Reloj 3.jpeg",
+      },
+      {
+        id: 4,
+        image: "/17018732871701873287Body Reloj 1.jpeg",
+      },
+    ],
+    []
   );
 
-  const subtotal = useMemo(
-    () => cart.reduce((acc, item) => acc + item.price * item.quantity, 0),
-    [cart]
-  );
+  const faqItems: FaqItem[] = [
+    {
+      question: "¿Cómo sé cuál es mi talla?",
+      answer:
+        "Te recomendamos revisar la guía de tallas y comparar tus medidas antes de comprar.",
+    },
+    {
+      question: "¿La faja se marca debajo de la ropa?",
+      answer:
+        "Está diseñada para verse lo más discreta posible bajo vestidos, jeans y prendas ajustadas.",
+    },
+    {
+      question: "¿Puedo usarla todos los días?",
+      answer:
+        "Sí, su diseño está pensado para acompañarte con comodidad en el uso diario.",
+    },
+    {
+      question: "¿Qué tipo de ajuste ofrece?",
+      answer:
+        "Brinda un ajuste firme, cómodo y estilizado para resaltar mejor la silueta.",
+    },
+  ];
 
-  const addToCart = (product: Product) => {
-    setCartOpen(true);
-    setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...product, quantity: 1 }];
-    });
-  };
-
-  const updateQuantity = (productId: number, delta: number) => {
-    setCart((prev) =>
-      prev
-        .map((item) =>
-          item.id === productId
-            ? { ...item, quantity: Math.max(0, item.quantity + delta) }
-            : item
-        )
-        .filter((item) => item.quantity > 0)
+  const nextPhoto = () => {
+    setCurrentPhotoIndex((prev) =>
+      prev === productPhotos.length - 1 ? 0 : prev + 1
     );
   };
 
+  const prevPhoto = () => {
+    setCurrentPhotoIndex((prev) =>
+      prev === 0 ? productPhotos.length - 1 : prev - 1
+    );
+  };
+
+  const scrollMobileGallery = (direction: "left" | "right") => {
+    if (!mobileCarouselRef.current) return;
+
+    const card = mobileCarouselRef.current.querySelector(
+      "[data-gallery-card]"
+    ) as HTMLElement | null;
+
+    const amount = card ? card.offsetWidth + 16 : 320;
+
+    mobileCarouselRef.current.scrollBy({
+      left: direction === "right" ? amount : -amount,
+      behavior: "smooth",
+    });
+  };
+
+  const addToCart = () => {
+    setCartCount((prev) => prev + 1);
+    setIsAdded(true);
+
+    setTimeout(() => {
+      setIsAdded(false);
+    }, 1200);
+  };
+
+  const buyOnWhatsApp = () => {
+    const message = encodeURIComponent(whatsappMessage);
+    window.open(`https://wa.me/${whatsappPhone}?text=${message}`, "_blank");
+  };
+
   return (
-    <div className="min-h-screen bg-[#f7f8f2] text-[#17311b]">
-      <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(167,183,70,0.10),transparent_18%),linear-gradient(180deg,#f7f8f2_0%,#eef3e4_42%,#f8faf5_100%)]" />
-
-      <header className="sticky top-0 z-50 border-b border-[#dbe5cf] bg-white/85 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <button
-            onClick={() => setMobileMenuOpen((v) => !v)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#dbe5cf] bg-white text-[#17311b] transition hover:bg-[#f3f6ec] md:hidden"
-          >
-            {mobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </button>
-
-          <nav className="hidden items-center gap-8 md:flex">
-            <a href="#inicio" className="text-sm text-[#17311b]/75 hover:text-[#17311b]">
-              Inicio
-            </a>
-            <a href="#beneficios" className="text-sm text-[#17311b]/75 hover:text-[#17311b]">
-              Beneficios
-            </a>
-            <a href="#galeria" className="text-sm text-[#17311b]/75 hover:text-[#17311b]">
-              Galería
-            </a>
-            <a href="#testimonios" className="text-sm text-[#17311b]/75 hover:text-[#17311b]">
-              Testimonios
-            </a>
-            <a href="#pagos" className="text-sm text-[#17311b]/75 hover:text-[#17311b]">
-              Pagos
-            </a>
-            <a href="#tienda" className="text-sm text-[#17311b]/75 hover:text-[#17311b]">
-              Tienda
-            </a>
-          </nav>
-
-          <a href="#inicio" className="select-none text-center">
-            <span className="block text-lg font-black tracking-[0.22em] text-[#17311b] sm:text-xl">
-              TIENDA DE VITA
-            </span>
-          </a>
-
-          <button
-            onClick={() => setCartOpen(true)}
-            className="relative inline-flex items-center gap-2 rounded-full bg-[#17311b] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#17311b]/15 transition hover:-translate-y-0.5 hover:bg-[#234826]"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            Carrito
-            {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#A7B746] px-1 text-[11px] font-bold text-[#17311b]">
-                {cartCount}
-              </span>
-            )}
-          </button>
+    <>
+      <main className="bg-white text-black">
+        {/* Top bar */}
+        <div
+          className="px-4 py-3 text-center text-sm font-semibold tracking-wide text-white"
+          style={{ backgroundColor: accent }}
+        >
+          ENVÍO GRATIS A TODO EL PAÍS
         </div>
 
-        {mobileMenuOpen && (
-          <div className="border-t border-[#dbe5cf] bg-white md:hidden">
-            <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:px-6">
-              <a href="#inicio" onClick={() => setMobileMenuOpen(false)} className="text-sm text-[#17311b]/75">
+        {/* Navbar */}
+        <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/90 backdrop-blur-xl">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6">
+            <a href="#inicio" className="text-3xl font-bold tracking-tight">
+              Faja<span style={{ color: accent }}>Fit</span>
+            </a>
+
+            <nav className="hidden items-center gap-8 md:flex">
+              <a
+                href="#inicio"
+                className="text-sm font-medium transition duration-300 hover:opacity-70"
+              >
                 Inicio
               </a>
-              <a href="#beneficios" onClick={() => setMobileMenuOpen(false)} className="text-sm text-[#17311b]/75">
+              <a
+                href="#beneficios"
+                className="text-sm font-medium transition duration-300 hover:opacity-70"
+              >
                 Beneficios
               </a>
-              <a href="#galeria" onClick={() => setMobileMenuOpen(false)} className="text-sm text-[#17311b]/75">
-                Galería
+              <a
+                href="#producto"
+                className="text-sm font-medium transition duration-300 hover:opacity-70"
+              >
+                Producto
               </a>
-              <a href="#testimonios" onClick={() => setMobileMenuOpen(false)} className="text-sm text-[#17311b]/75">
-                Testimonios
+              <a
+                href="#faq"
+                className="text-sm font-medium transition duration-300 hover:opacity-70"
+              >
+                FAQ
               </a>
-              <a href="#pagos" onClick={() => setMobileMenuOpen(false)} className="text-sm text-[#17311b]/75">
-                Pagos
+            </nav>
+
+            <div className="flex items-center gap-3">
+              <a
+                href="/login"
+                className="hidden md:inline-flex items-center gap-2 rounded-full border border-neutral-300 px-4 py-2 text-sm font-semibold transition duration-300 hover:-translate-y-0.5 hover:bg-neutral-100"
+              >
+                <LogIn className="h-4 w-4" />
+                Login
               </a>
-              <a href="#tienda" onClick={() => setMobileMenuOpen(false)} className="text-sm text-[#17311b]/75">
-                Tienda
-              </a>
+
+              <button
+                aria-label="Carrito"
+                className="relative rounded-full border border-neutral-300 p-3 transition duration-300 hover:-translate-y-0.5 hover:bg-neutral-50"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                <span
+                  className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
+                  style={{ backgroundColor: accent }}
+                >
+                  {cartCount}
+                </span>
+              </button>
+
+              <button
+                className="rounded-full border border-neutral-300 p-3 transition duration-300 md:hidden"
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-label="Abrir menú"
+              >
+                {menuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </button>
             </div>
           </div>
-        )}
-      </header>
 
-      <main>
-        <section id="inicio" className="relative px-4 pb-10 pt-5 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8">
+          {menuOpen && (
+            <div className="border-t border-neutral-200 bg-white px-4 py-4 md:hidden">
+              <nav className="flex flex-col gap-4">
+                <a href="#inicio" onClick={() => setMenuOpen(false)}>
+                  Inicio
+                </a>
+                <a href="#beneficios" onClick={() => setMenuOpen(false)}>
+                  Beneficios
+                </a>
+                <a href="#producto" onClick={() => setMenuOpen(false)}>
+                  Producto
+                </a>
+                <a href="#faq" onClick={() => setMenuOpen(false)}>
+                  FAQ
+                </a>
+                <a
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="inline-flex items-center gap-2 font-medium"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Login
+                </a>
+              </nav>
+            </div>
+          )}
+        </header>
+
+        {/* Hero */}
+        <section
+          id="inicio"
+          className="relative flex min-h-[88vh] items-center overflow-hidden"
+        >
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage:
+                "url('/17018732871701873287Body Reloj de Arena 1.jpg')",
+            }}
+          />
+          <div className="absolute inset-0 bg-black/35" />
+
+          <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 px-4 py-20 md:grid-cols-2 md:px-6">
+            <div className="max-w-xl text-white">
+              <div className="mb-5 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
+                <Star className="mr-2 h-4 w-4 fill-current" />
+                Ajuste cómodo + envío gratis
+              </div>
+
+              <h1 className="text-4xl font-bold leading-tight sm:text-5xl md:text-6xl">
+                Define tu figura con estilo
+              </h1>
+
+              <p className="mt-5 max-w-lg text-base leading-7 text-white/90 sm:text-lg">
+                Faja moldeadora premium con ajuste cómodo y diseño pensado para
+                resaltar tu silueta.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+                <button
+                  onClick={buyOnWhatsApp}
+                  className="inline-flex items-center justify-center rounded-full px-7 py-4 text-sm font-bold text-white shadow-lg transition duration-300 hover:-translate-y-0.5 hover:scale-[1.02]"
+                  style={{ backgroundColor: whatsappColor }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = whatsappHover)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = whatsappColor)
+                  }
+                >
+                  <MessageCircle className="mr-2 h-5 w-5" />
+                  Comprar por WhatsApp
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </button>
+
+                <button
+                  onClick={() => setShowSizeGuide(true)}
+                  className="inline-flex items-center justify-center rounded-full border border-white/40 bg-white/10 px-7 py-4 text-sm font-bold text-white backdrop-blur transition duration-300 hover:bg-white hover:text-black"
+                >
+                  <Ruler className="mr-2 h-4 w-4" />
+                  Ver tallas
+                </button>
+              </div>
+            </div>
+
+            <div />
+          </div>
+        </section>
+
+        {/* Trust */}
+        <section className="border-b border-neutral-200 bg-white px-4 py-6 md:px-6">
+          <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
+            <div className="flex items-center gap-3 rounded-2xl bg-neutral-50 p-4 transition duration-300 hover:-translate-y-1 hover:shadow-md">
+              <ShieldCheck className="h-5 w-5" style={{ color: accent }} />
+              <div>
+                <p className="font-semibold">Compra fácil</p>
+                <p className="text-sm text-neutral-600">
+                  Atención rápida por WhatsApp
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 rounded-2xl bg-neutral-50 p-4 transition duration-300 hover:-translate-y-1 hover:shadow-md">
+              <Sparkles className="h-5 w-5" style={{ color: accent }} />
+              <div>
+                <p className="font-semibold">Diseño discreto</p>
+                <p className="text-sm text-neutral-600">
+                  Ajuste suave bajo la ropa
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 rounded-2xl bg-neutral-50 p-4 transition duration-300 hover:-translate-y-1 hover:shadow-md">
+              <HeartHandshake className="h-5 w-5" style={{ color: accent }} />
+              <div>
+                <p className="font-semibold">Más seguridad</p>
+                <p className="text-sm text-neutral-600">
+                  Resalta tu figura con comodidad
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Benefits marquee */}
+        <section
+          id="beneficios"
+          className="overflow-hidden py-5"
+          style={{ backgroundColor: accent }}
+        >
+          <div className="marquee whitespace-nowrap">
+            {[...benefits, ...benefits].map((item, index) => (
+              <span
+                key={`${item}-${index}`}
+                className="mx-6 inline-flex items-center text-sm font-bold uppercase tracking-[0.12em] text-white sm:text-base"
+              >
+                <CheckCircle2 className="mr-3 h-4 w-4" />
+                {item}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        {/* Product section */}
+        <section id="producto" className="px-4 py-20 md:px-6">
           <div className="mx-auto max-w-7xl">
-            <div className="overflow-hidden rounded-[2rem] border border-[#dbe5cf] bg-white shadow-[0_30px_90px_rgba(22,43,22,0.10)]">
-              <div className="relative h-[540px] sm:h-[620px] lg:h-[720px]">
-                {heroSlides.map((slide, index) => (
-                  <div
-                    key={slide.id}
-                    className={cn(
-                      "absolute inset-0 transition-all duration-700",
-                      heroSlide === index ? "opacity-100" : "opacity-0"
-                    )}
-                  >
-                    <img src={slide.image} alt="" className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/95 via-white/35 to-transparent" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#17311b]/12 via-transparent to-transparent" />
-                  </div>
-                ))}
+            <div className="mb-10">
+              <p
+                className="text-sm font-bold uppercase tracking-[0.2em]"
+                style={{ color: accent }}
+              >
+                Producto destacado
+              </p>
+              <h2 className="mt-2 text-4xl font-bold">
+                Una misma faja, varias vistas
+              </h2>
+              <p className="mt-3 max-w-2xl text-neutral-600">
+                Descubre cada detalle del producto desde una galería visual
+                cómoda y responsive.
+              </p>
+            </div>
 
-                <div className="absolute inset-0 z-10 flex flex-col justify-end">
-                  <div className="mx-auto w-full max-w-7xl px-5 pb-6 sm:px-8 sm:pb-8 lg:px-12 lg:pb-10">
-                    <div className="max-w-2xl">
-                      <div className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#41632E] shadow-sm backdrop-blur-md">
-                        Bienestar y recuperación
-                      </div>
+            <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
+              {/* Mobile gallery */}
+              <div className="lg:hidden">
+                <div
+                  ref={mobileCarouselRef}
+                  className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 scroll-smooth"
+                >
+                  {productPhotos.map((photo, index) => (
+                    <div
+                      key={photo.id}
+                      data-gallery-card
+                      className="w-[88%] min-w-[88%] snap-center"
+                    >
+                      <article className="relative overflow-hidden rounded-[32px] border border-neutral-200 bg-white shadow-lg">
+                        <div
+                          className="h-[460px] w-full bg-cover bg-center"
+                          style={{ backgroundImage: `url('${photo.image}')` }}
+                        />
 
-                      <h1 className="mt-4 text-3xl font-black leading-tight tracking-tight text-[#17311b] sm:text-5xl lg:text-6xl">
-                      
-                      </h1>
+                        <div className="absolute left-4 top-4 rounded-full bg-white/90 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-black backdrop-blur">
+                          Foto {index + 1}
+                        </div>
 
-                      <p className="mt-4 max-w-xl text-sm leading-7 text-[#17311b]/75 sm:text-base">
-                        
-                      </p>
-                    </div>
-
-                    <div className="mt-8 flex flex-col gap-3 sm:max-w-xl sm:flex-row">
-                      <a
-                        href="#checkout"
-                        className="flex-1 rounded-full bg-[#17311b] px-6 py-3.5 text-center text-sm font-semibold text-white shadow-lg shadow-[#17311b]/15 transition hover:-translate-y-0.5 hover:bg-[#234826]"
-                      >
-                        Comprar ahora
-                      </a>
-
-                      <a
-                        href="#tienda"
-                        className="flex-1 rounded-full border border-[#17311b]/12 bg-white px-6 py-3.5 text-center text-sm font-semibold text-[#17311b] transition hover:bg-[#f4f7ef]"
-                      >
-                        Ir a la tienda
-                      </a>
-                    </div>
-
-                    <div className="mt-6 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-2">
-                        {heroSlides.map((_, index) => (
+                        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
                           <button
-                            key={index}
-                            onClick={() => setHeroSlide(index)}
-                            className={cn(
-                              "h-2.5 rounded-full transition-all duration-300",
-                              heroSlide === index
-                                ? "w-8 bg-[#17311b]"
-                                : "w-2.5 bg-[#17311b]/25 hover:bg-[#17311b]/45"
-                            )}
-                          />
-                        ))}
-                      </div>
+                            onClick={() => scrollMobileGallery("left")}
+                            className="rounded-full bg-white/90 p-3 text-black shadow-lg backdrop-blur transition duration-300 hover:scale-105"
+                            aria-label="Foto anterior"
+                          >
+                            <ChevronLeft className="h-5 w-5" />
+                          </button>
 
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() =>
-                            setHeroSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)
-                          }
-                          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/80 text-[#17311b] shadow-sm backdrop-blur-md transition hover:bg-white"
-                        >
-                          <ChevronLeft className="h-5 w-5" />
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            setHeroSlide((prev) => (prev + 1) % heroSlides.length)
-                          }
-                          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/80 text-[#17311b] shadow-sm backdrop-blur-md transition hover:bg-white"
-                        >
-                          <ChevronRight className="h-5 w-5" />
-                        </button>
-                      </div>
+                          <button
+                            onClick={() => scrollMobileGallery("right")}
+                            className="rounded-full bg-white/90 p-3 text-black shadow-lg backdrop-blur transition duration-300 hover:scale-105"
+                            aria-label="Foto siguiente"
+                          >
+                            <ChevronRight className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </article>
                     </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Desktop gallery */}
+              <div className="hidden lg:block">
+                <article className="relative overflow-hidden rounded-[36px] border border-neutral-200 bg-white shadow-lg">
+                  <div
+                    className="h-[760px] w-full bg-cover bg-center transition-all duration-500"
+                    style={{
+                      backgroundImage: `url('${productPhotos[currentPhotoIndex].image}')`,
+                    }}
+                  />
+
+                  <div className="absolute left-6 top-6 rounded-full bg-white/90 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-black backdrop-blur">
+                    Foto {currentPhotoIndex + 1} de {productPhotos.length}
+                  </div>
+
+                  <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
+                    <button
+                      onClick={prevPhoto}
+                      className="rounded-full bg-white/90 p-4 text-black shadow-lg backdrop-blur transition duration-300 hover:scale-105"
+                      aria-label="Foto anterior"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+
+                    <button
+                      onClick={nextPhoto}
+                      className="rounded-full bg-white/90 p-4 text-black shadow-lg backdrop-blur transition duration-300 hover:scale-105"
+                      aria-label="Foto siguiente"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </div>
+                </article>
+
+                <div className="mt-4 grid grid-cols-4 gap-4">
+                  {productPhotos.map((photo, index) => (
+                    <button
+                      key={photo.id}
+                      onClick={() => setCurrentPhotoIndex(index)}
+                      className={`overflow-hidden rounded-2xl border transition duration-300 hover:-translate-y-1 ${
+                        currentPhotoIndex === index
+                          ? "scale-[1.02]"
+                          : "opacity-80 hover:opacity-100"
+                      }`}
+                      style={{
+                        borderColor:
+                          currentPhotoIndex === index ? accent : "#e5e5e5",
+                        boxShadow:
+                          currentPhotoIndex === index
+                            ? "0 12px 30px rgba(142, 106, 174, 0.24)"
+                            : undefined,
+                      }}
+                    >
+                      <div
+                        className="h-28 w-full bg-cover bg-center"
+                        style={{ backgroundImage: `url('${photo.image}')` }}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Product info */}
+              <div className="rounded-[32px] border border-neutral-200 bg-white p-8 shadow-lg">
+                <span
+                  className="inline-flex rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white"
+                  style={{ backgroundColor: accent }}
+                >
+                  Bestseller
+                </span>
+
+                <h3 className="mt-5 text-4xl font-bold">
+                  Faja Moldeadora Premium
+                </h3>
+
+                <div className="mt-4 flex items-center gap-3">
+                  <p
+                    className="text-3xl font-extrabold"
+                    style={{ color: accent }}
+                  >
+                    $149.900
+                  </p>
+                  <span className="rounded-full bg-neutral-100 px-3 py-1 text-sm font-medium text-neutral-600">
+                    Envío gratis
+                  </span>
+                </div>
+
+                <p className="mt-6 text-base leading-7 text-neutral-600">
+                  Diseñada para estilizar la silueta sin sacrificar comodidad.
+                  Su ajuste firme y su material suave ayudan a realzar tu figura
+                  con un acabado elegante.
+                </p>
+
+                <div className="mt-8 space-y-4">
+                  <div className="rounded-2xl bg-neutral-50 p-4">
+                    <p className="text-sm font-semibold text-neutral-500">
+                      Tallas disponibles
+                    </p>
+                    <p className="mt-1 font-bold">S · M · L · XL</p>
+                  </div>
+
+                  <div className="rounded-2xl bg-neutral-50 p-4">
+                    <p className="text-sm font-semibold text-neutral-500">
+                      Material
+                    </p>
+                    <p className="mt-1 font-bold">
+                      Suave, transpirable y cómodo
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-neutral-50 p-4">
+                    <p className="text-sm font-semibold text-neutral-500">
+                      Ideal para
+                    </p>
+                    <p className="mt-1 font-bold">
+                      Uso diario, vestidos y jeans
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-8 grid gap-3">
+                  <button
+                    onClick={buyOnWhatsApp}
+                    className="inline-flex w-full items-center justify-center rounded-full px-6 py-4 text-sm font-bold text-white shadow-lg transition duration-300 hover:-translate-y-0.5 hover:scale-[1.02]"
+                    style={{ backgroundColor: whatsappColor }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = whatsappHover)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = whatsappColor)
+                    }
+                  >
+                    <MessageCircle className="mr-2 h-5 w-5" />
+                    Comprar por WhatsApp
+                  </button>
+
+                  <button
+                    onClick={addToCart}
+                    className="inline-flex w-full items-center justify-center rounded-full border border-neutral-300 px-6 py-4 text-sm font-bold transition duration-300 hover:bg-neutral-50"
+                  >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    {isAdded ? "Agregado al carrito" : "Agregar al carrito"}
+                  </button>
+
+                  <button
+                    onClick={() => setShowSizeGuide(true)}
+                    className="inline-flex w-full items-center justify-center rounded-full border border-neutral-300 px-6 py-4 text-sm font-bold transition duration-300 hover:bg-neutral-50"
+                  >
+                    <Ruler className="mr-2 h-4 w-4" />
+                    Ver guía de tallas
+                  </button>
+                </div>
+
+                <div className="mt-8 space-y-4 border-t border-neutral-200 pt-8">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2
+                      className="mt-0.5 h-5 w-5 shrink-0"
+                      style={{ color: accent }}
+                    />
+                    <p className="text-sm leading-6 text-neutral-600">
+                      Moldea la cintura con un contorno más definido.
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2
+                      className="mt-0.5 h-5 w-5 shrink-0"
+                      style={{ color: accent }}
+                    />
+                    <p className="text-sm leading-6 text-neutral-600">
+                      Ajuste cómodo para acompañarte durante el día.
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2
+                      className="mt-0.5 h-5 w-5 shrink-0"
+                      style={{ color: accent }}
+                    />
+                    <p className="text-sm leading-6 text-neutral-600">
+                      Diseño pensado para realzar tu figura con estilo.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -451,254 +623,163 @@ export default function Page() {
           </div>
         </section>
 
-        <section id="beneficios" className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-8 max-w-2xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#738D40]">
-                Beneficios de Embriovit
+        {/* Social proof */}
+        <section className="px-4 py-16 md:px-6">
+          <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-2">
+            <div className="rounded-[28px] border border-neutral-200 bg-white p-8 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md">
+              <p
+                className="text-sm font-bold uppercase tracking-[0.2em]"
+                style={{ color: accent }}
+              >
+                Opinión de clienta
               </p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-[#17311b] sm:text-4xl">
-                Un apoyo integral para el fortalecimiento y la recuperación
-              </h2>
+              <div className="mt-4 flex items-center gap-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className="h-5 w-5 fill-current"
+                    style={{ color: accent }}
+                  />
+                ))}
+              </div>
+              <p className="mt-4 text-lg leading-8 text-neutral-700">
+                “Me encantó porque estiliza muy bonito la figura y se siente
+                cómoda para usar con diferentes outfits.”
+              </p>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {benefits.map((benefit) => (
-                <div
-                  key={benefit}
-                  className="rounded-[1.75rem] border border-[#dbe5cf] bg-white p-6 shadow-[0_14px_40px_rgba(28,45,28,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(28,45,28,0.10)]"
-                >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#A7B746] text-[#17311b] shadow-sm">
-                    <CheckCircle2 className="h-5 w-5" />
-                  </div>
-                  <p className="mt-5 text-base font-semibold leading-7 text-[#17311b]">
-                    {benefit}
+            <div
+              className="rounded-[28px] p-8 text-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
+              style={{ backgroundColor: accent }}
+            >
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-white/80">
+                Estilo y comodidad
+              </p>
+              <h3 className="mt-3 text-3xl font-bold">
+                Una faja diseñada para acompañarte
+              </h3>
+              <p className="mt-4 leading-7 text-white/90">
+                Ajuste cómodo, diseño discreto y una silueta más estilizada para
+                complementar tu look todos los días.
+              </p>
+              <button
+                onClick={buyOnWhatsApp}
+                className="mt-6 inline-flex items-center rounded-full bg-white px-6 py-4 text-sm font-bold text-black transition duration-300 hover:scale-[1.02]"
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Pedir por WhatsApp
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Article */}
+        <section
+          id="articulo"
+          className="px-4 py-20 md:px-6"
+          style={{ backgroundColor: accentSoft }}
+        >
+          <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2">
+            <div className="rounded-[32px] bg-white p-8 shadow-lg">
+              <p
+                className="text-sm font-bold uppercase tracking-[0.2em]"
+                style={{ color: accent }}
+              >
+                Guía rápida
+              </p>
+              <h2 className="mt-3 text-4xl font-bold">
+                Cómo usar una faja correctamente
+              </h2>
+
+              <div className="mt-8 space-y-6 text-neutral-700">
+                <div>
+                  <h3 className="font-semibold">1. Revisa tu talla</h3>
+                  <p className="mt-2 leading-7">
+                    Comparar tus medidas ayuda a elegir un mejor ajuste.
                   </p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="galeria" className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-          <div className="mx-auto max-w-7xl rounded-[2.25rem] border border-[#dbe5cf] bg-white p-5 shadow-[0_18px_60px_rgba(28,45,28,0.06)] sm:p-8">
-            <div className="mb-6 flex items-end justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#738D40]">
-                  Galería
-                </p>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#17311b] sm:text-4xl">
-                  Conoce Embriovit más de cerca
-                </h2>
-              </div>
-
-              <div className="hidden items-center gap-2 sm:flex">
-                <button
-                  onClick={() =>
-                    setGallerySlide((prev) => (prev - 1 + gallerySlides.length) % gallerySlides.length)
-                  }
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#dbe5cf] bg-white text-[#17311b] transition hover:bg-[#f4f7ef]"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={() =>
-                    setGallerySlide((prev) => (prev + 1) % gallerySlides.length)
-                  }
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#dbe5cf] bg-white text-[#17311b] transition hover:bg-[#f4f7ef]"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid gap-5 lg:grid-cols-[1.3fr_0.7fr]">
-              <div className="relative overflow-hidden rounded-[1.8rem]">
-                <img
-                  src={gallerySlides[gallerySlide].image}
-                  alt={gallerySlides[gallerySlide].title}
-                  className="h-[460px] w-full object-cover sm:h-[560px]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#17311b]/50 via-transparent to-transparent" />
-                <div className="absolute bottom-5 left-5 rounded-full bg-white/85 px-4 py-2 text-sm font-semibold text-[#17311b] backdrop-blur">
-                  {gallerySlides[gallerySlide].title}
+                <div>
+                  <h3 className="font-semibold">2. Acomódala con calma</h3>
+                  <p className="mt-2 leading-7">
+                    Colócala suavemente para que se adapte mejor a tu cuerpo.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold">3. Combínala con tu look</h3>
+                  <p className="mt-2 leading-7">
+                    Ideal para outfits casuales, elegantes y de uso diario.
+                  </p>
                 </div>
               </div>
-
-              <div className="grid gap-4">
-                {gallerySlides.map((slide, index) => (
-                  <button
-                    key={slide.id}
-                    onClick={() => setGallerySlide(index)}
-                    className={cn(
-                      "group overflow-hidden rounded-[1.5rem] border bg-white text-left transition",
-                      gallerySlide === index
-                        ? "border-[#A7B746] shadow-[0_12px_35px_rgba(28,45,28,0.10)]"
-                        : "border-[#dbe5cf] hover:border-[#A7B746]/60"
-                    )}
-                  >
-                    <div className="flex items-center gap-4 p-3">
-                      <img
-                        src={slide.image}
-                        alt={slide.title}
-                        className="h-20 w-20 rounded-2xl object-cover"
-                      />
-                      <div>
-                        <p className="text-sm font-semibold text-[#17311b]">
-                          {slide.title}
-                        </p>
-                        <p className="mt-1 text-sm text-[#17311b]/55">
-                          Ver imagen
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
             </div>
 
-            <div className="mt-5 flex justify-center gap-2 sm:hidden">
+            <div
+              className="flex flex-col justify-center rounded-[32px] p-8 text-white shadow-lg"
+              style={{ backgroundColor: accent }}
+            >
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-white/80">
+                Beneficios
+              </p>
+              <h3 className="mt-3 text-4xl font-bold">
+                Seguridad, soporte y estilo
+              </h3>
+              <p className="mt-5 leading-7 text-white/90">
+                La faja ayuda a definir la figura con una sensación cómoda y un
+                diseño pensado para estilizar la silueta desde el primer uso.
+              </p>
+
               <button
-                onClick={() =>
-                  setGallerySlide((prev) => (prev - 1 + gallerySlides.length) % gallerySlides.length)
-                }
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#dbe5cf] bg-white text-[#17311b]"
+                onClick={buyOnWhatsApp}
+                className="mt-8 inline-flex w-fit items-center rounded-full bg-white px-6 py-4 text-sm font-bold text-black transition duration-300 hover:scale-[1.02]"
               >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                onClick={() =>
-                  setGallerySlide((prev) => (prev + 1) % gallerySlides.length)
-                }
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#dbe5cf] bg-white text-[#17311b]"
-              >
-                <ChevronRight className="h-5 w-5" />
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Comprar por WhatsApp
               </button>
             </div>
           </div>
         </section>
 
-        <section id="testimonios" className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-8 max-w-2xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#738D40]">
-                Testimonios
+        {/* FAQ */}
+        <section id="faq" className="px-4 py-20 md:px-6">
+          <div className="mx-auto max-w-5xl">
+            <div className="text-center">
+              <p
+                className="text-sm font-bold uppercase tracking-[0.2em]"
+                style={{ color: accent }}
+              >
+                Preguntas frecuentes
               </p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-[#17311b] sm:text-4xl">
-                Historias de personas que confiaron en Embriovit
+              <h2 className="mt-3 text-4xl font-bold">
+                Resolvemos tus dudas antes de comprar
               </h2>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-              <div className="rounded-[2rem] border border-[#dbe5cf] bg-white p-8 shadow-[0_18px_60px_rgba(28,45,28,0.06)]">
-                <div className="flex items-center gap-4">
-                  <img
-                    src={testimonials[testimonialSlide].photo}
-                    alt={testimonials[testimonialSlide].name}
-                    className="h-20 w-20 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="text-lg font-bold text-[#17311b]">
-                      {testimonials[testimonialSlide].name}
-                    </p>
-                    <p className="text-sm text-[#17311b]/55">
-                      {testimonials[testimonialSlide].role}
-                    </p>
-                    <div className="mt-2 flex items-center gap-1 text-[#A7B746]">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-current" />
-                      ))}
-                    </div>
-                  </div>
-                </div>
+            <div className="mt-12 space-y-4">
+              {faqItems.map((item, index) => {
+                const isOpen = openFaq === index;
 
-                <p className="mt-8 text-xl font-medium leading-9 text-[#17311b] sm:text-2xl">
-                  “{testimonials[testimonialSlide].text}”
-                </p>
-
-                <div className="mt-8 flex items-center gap-2">
-                  <button
-                    onClick={() =>
-                      setTestimonialSlide(
-                        (prev) => (prev - 1 + testimonials.length) % testimonials.length
-                      )
-                    }
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#dbe5cf] bg-white text-[#17311b] transition hover:bg-[#f4f7ef]"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() =>
-                      setTestimonialSlide((prev) => (prev + 1) % testimonials.length)
-                    }
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#dbe5cf] bg-white text-[#17311b] transition hover:bg-[#f4f7ef]"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid gap-4">
-                {testimonials.map((item, index) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setTestimonialSlide(index)}
-                    className={cn(
-                      "rounded-[1.5rem] border bg-white p-4 text-left transition",
-                      testimonialSlide === index
-                        ? "border-[#A7B746] shadow-[0_12px_35px_rgba(28,45,28,0.10)]"
-                        : "border-[#dbe5cf] hover:border-[#A7B746]/60"
-                    )}
-                  >
-                    <div className="flex items-center gap-4">
-                      <img
-                        src={item.photo}
-                        alt={item.name}
-                        className="h-16 w-16 rounded-full object-cover"
-                      />
-                      <div>
-                        <p className="font-semibold text-[#17311b]">{item.name}</p>
-                        <p className="text-sm text-[#17311b]/55">{item.role}</p>
-                      </div>
-                    </div>
-                    <p className="mt-4 text-sm leading-6 text-[#17311b]/68">
-                      {item.text}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="pagos" className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-          <div className="mx-auto max-w-7xl rounded-[2.25rem] border border-[#dbe5cf] bg-white p-6 shadow-[0_18px_60px_rgba(28,45,28,0.06)] sm:p-8 lg:p-10">
-            <div className="max-w-2xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#738D40]">
-                Pagos
-              </p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-[#17311b] sm:text-4xl">
-                Métodos de pago seguros y flexibles
-              </h2>
-            </div>
-
-            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-              {paymentMethods.map((method) => {
-                const Icon = method.icon;
                 return (
                   <div
-                    key={method.title}
-                    className="rounded-[1.75rem] border border-[#dbe5cf] bg-[#f8faf5] p-6"
+                    key={item.question}
+                    className="overflow-hidden rounded-2xl border border-neutral-200 bg-white transition duration-300 hover:shadow-sm"
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#17311b] text-white">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="mt-5 text-lg font-bold text-[#17311b]">
-                      {method.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-[#17311b]/68">
-                      {method.text}
-                    </p>
+                    <button
+                      onClick={() => setOpenFaq(isOpen ? null : index)}
+                      className="flex w-full items-center justify-between px-6 py-5 text-left"
+                    >
+                      <span className="font-semibold">{item.question}</span>
+                      {isOpen ? (
+                        <Minus className="h-5 w-5" style={{ color: accent }} />
+                      ) : (
+                        <Plus className="h-5 w-5" style={{ color: accent }} />
+                      )}
+                    </button>
+
+                    {isOpen && (
+                      <div className="px-6 pb-5 text-sm leading-7 text-neutral-600">
+                        {item.answer}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -706,352 +787,261 @@ export default function Page() {
           </div>
         </section>
 
-        <section id="tienda" className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#738D40]">
-                  Tienda
-                </p>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#17311b] sm:text-4xl">
-                  Productos destacados
-                </h2>
-              </div>
+        {/* Footer */}
+        <footer
+          className="border-t px-4 py-14 text-white md:px-6"
+          style={{ backgroundColor: accent }}
+        >
+          <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <h3 className="text-3xl font-bold">
+                Faja<span className="text-white/80">Fit</span>
+              </h3>
+              <p className="mt-4 max-w-sm text-sm leading-6 text-white/85">
+                Resalta tu figura con prendas diseñadas para brindar soporte,
+                comodidad y estilo.
+              </p>
 
-              <a
-                href="#checkout"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#17311b] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#234826]"
-              >
-                Ir a compra
-                <ArrowRight className="h-4 w-4" />
-              </a>
+              <div className="mt-6 flex items-center gap-3">
+                <a
+                  href="#"
+                  className="rounded-full border border-white/30 p-3 transition duration-300 hover:bg-white hover:text-black"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
+                <a
+                  href="#"
+                  className="rounded-full border border-white/30 p-3 transition duration-300 hover:bg-white hover:text-black"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a
+                  href="#"
+                  className="rounded-full border border-white/30 p-3 transition duration-300 hover:bg-white hover:text-black"
+                  aria-label="Correo"
+                >
+                  <Mail className="h-4 w-4" />
+                </a>
+              </div>
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {products.map((product) => (
-                <article
-                  key={product.id}
-                  className="group overflow-hidden rounded-[2rem] border border-[#dbe5cf] bg-white p-4 shadow-[0_16px_50px_rgba(28,45,28,0.06)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_22px_65px_rgba(28,45,28,0.12)]"
-                >
-                  <div className="relative overflow-hidden rounded-[1.6rem]">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-80 w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                    {product.badge && (
-                      <span className="absolute left-4 top-4 rounded-full bg-[#A7B746] px-3 py-1 text-xs font-semibold text-[#17311b] shadow-sm">
-                        {product.badge}
-                      </span>
-                    )}
-                  </div>
+            <div>
+              <h4 className="text-lg font-semibold">Navegación</h4>
+              <ul className="mt-5 space-y-3 text-sm text-white/85">
+                <li>
+                  <a href="#inicio" className="transition hover:text-white">
+                    Inicio
+                  </a>
+                </li>
+                <li>
+                  <a href="#beneficios" className="transition hover:text-white">
+                    Beneficios
+                  </a>
+                </li>
+                <li>
+                  <a href="#producto" className="transition hover:text-white">
+                    Producto
+                  </a>
+                </li>
+                <li>
+                  <a href="#faq" className="transition hover:text-white">
+                    FAQ
+                  </a>
+                </li>
+              </ul>
+            </div>
 
-                  <div className="mt-5">
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-[#738D40]">
-                      {product.category}
-                    </p>
-                    <h3 className="mt-2 text-2xl font-bold tracking-tight text-[#17311b]">
-                      {product.name}
-                    </h3>
-                    <p className="mt-3 text-sm leading-6 text-[#17311b]/68">
-                      {product.description}
-                    </p>
+            <div>
+              <h4 className="text-lg font-semibold">Ayuda</h4>
+              <ul className="mt-5 space-y-3 text-sm text-white/85">
+                <li>
+                  <button
+                    onClick={() => setShowSizeGuide(true)}
+                    className="transition hover:text-white"
+                  >
+                    Guía de tallas
+                  </button>
+                </li>
+                <li>
+                  <a href="#" className="transition hover:text-white">
+                    Envíos
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="transition hover:text-white">
+                    Términos y condiciones
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="transition hover:text-white">
+                    Soporte
+                  </a>
+                </li>
+              </ul>
+            </div>
 
-                    <div className="mt-5 flex items-end gap-3">
-                      <span className="text-2xl font-black text-[#17311b]">
-                        {currency.format(product.price)}
-                      </span>
-                      {product.oldPrice && (
-                        <span className="text-sm text-[#17311b]/35 line-through">
-                          {currency.format(product.oldPrice)}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="mt-6 flex gap-3">
-                      <button
-                        onClick={() => addToCart(product)}
-                        className="flex-1 rounded-full border border-[#dbe5cf] bg-white px-4 py-3 text-sm font-semibold text-[#17311b] transition hover:bg-[#f4f7ef]"
-                      >
-                        Agregar
-                      </button>
-                      <a
-                        href="#checkout"
-                        onClick={() => addToCart(product)}
-                        className="flex-1 rounded-full bg-[#17311b] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#234826]"
-                      >
-                        Comprar
-                      </a>
-                    </div>
-                  </div>
-                </article>
-              ))}
+            <div>
+              <h4 className="text-lg font-semibold">Contacto</h4>
+              <ul className="mt-5 space-y-4 text-sm text-white/85">
+                <li className="flex items-start gap-3">
+                  <Phone className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>+57 300 000 0000</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Mail className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>hola@fajafit.com</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>Bogotá, Colombia</span>
+                </li>
+              </ul>
             </div>
           </div>
-        </section>
 
-        <section id="checkout" className="px-4 py-8 sm:px-6 lg:px-8 lg:pb-20 lg:pt-12">
-          <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1fr_420px]">
-            <div className="rounded-[2.25rem] border border-[#dbe5cf] bg-white p-8 shadow-[0_18px_60px_rgba(28,45,28,0.06)]">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#738D40]">
-                Compra
-              </p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-[#17311b] sm:text-4xl">
-                Elige tus productos y completa tu pedido
-              </h2>
-              <p className="mt-4 max-w-2xl text-[#17311b]/68">
-                Una experiencia clara, segura y enfocada en ayudarte a comprar con confianza.
-              </p>
-
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                {[
-                  "Compra segura",
-                  "Atención personalizada",
-                  "Envío rápido",
-                  "Pago flexible",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-center gap-3 rounded-2xl border border-[#e4ead8] bg-[#f7f9f2] p-4 text-sm text-[#17311b]/78"
-                  >
-                    <CheckCircle2 className="h-5 w-5 text-[#738D40]" />
-                    {item}
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                <a
-                  href="https://wa.me/573000000000"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center rounded-full bg-[#17311b] px-6 py-3.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#234826]"
-                >
-                  Comprar por WhatsApp
-                </a>
-
-                <button
-                  onClick={() => setCartOpen(true)}
-                  className="inline-flex items-center justify-center rounded-full border border-[#dbe5cf] bg-white px-6 py-3.5 text-sm font-semibold text-[#17311b] transition hover:bg-[#f4f7ef]"
-                >
-                  Ver carrito
-                </button>
-              </div>
+          <div className="mx-auto mt-10 flex max-w-7xl flex-col gap-4 border-t border-white/20 pt-6 text-sm text-white/75 md:flex-row md:items-center md:justify-between">
+            <p>© 2026 FajaFit. Todos los derechos reservados.</p>
+            <div className="flex flex-wrap gap-4">
+              <a href="#" className="transition hover:text-white">
+                Política de privacidad
+              </a>
+              <a href="#" className="transition hover:text-white">
+                Cookies
+              </a>
+              <a href="#" className="transition hover:text-white">
+                Soporte
+              </a>
             </div>
+          </div>
+        </footer>
 
-            <aside className="rounded-[2.25rem] border border-[#dbe5cf] bg-white p-6 shadow-[0_18px_60px_rgba(28,45,28,0.06)]">
-              <div className="flex items-center justify-between">
+        {/* Floating WhatsApp */}
+        <button
+          onClick={buyOnWhatsApp}
+          className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold text-white shadow-2xl transition duration-300 hover:-translate-y-1 hover:scale-105"
+          style={{ backgroundColor: whatsappColor }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = whatsappHover)
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = whatsappColor)
+          }
+          aria-label="Comprar por WhatsApp"
+        >
+          <MessageCircle className="h-5 w-5" />
+          WhatsApp
+        </button>
+
+        <style jsx>{`
+          .marquee {
+            display: inline-block;
+            min-width: 200%;
+            animation: marquee 22s linear infinite;
+          }
+
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+
+          .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+          }
+
+          @keyframes marquee {
+            0% {
+              transform: translateX(0%);
+            }
+            100% {
+              transform: translateX(-50%);
+            }
+          }
+        `}</style>
+      </main>
+
+      {/* Modal guía de tallas */}
+      {showSizeGuide && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4">
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-[28px] border border-white/20 bg-[rgba(142,106,174,0.22)] p-6 shadow-2xl backdrop-blur-2xl md:p-8">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5" />
+            <div className="relative z-10">
+              <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#738D40]">
-                    Resumen
+                  <p className="text-sm font-bold uppercase tracking-[0.2em] text-white/80">
+                    Guía de tallas
                   </p>
-                  <h3 className="mt-2 text-2xl font-black text-[#17311b]">
-                    Tu pedido
+                  <h3 className="mt-2 text-3xl font-bold text-white">
+                    Encuentra tu ajuste ideal
                   </h3>
                 </div>
 
-                <div className="rounded-full bg-[#f4f7ef] px-4 py-2 text-sm font-semibold text-[#17311b]">
-                  {cartCount} item{cartCount === 1 ? "" : "s"}
-                </div>
-              </div>
-
-              <div className="mt-6 space-y-4">
-                {cart.length === 0 ? (
-                  <div className="rounded-[1.5rem] border border-dashed border-[#dbe5cf] bg-[#f8faf5] p-6 text-center text-sm text-[#17311b]/55">
-                    Aún no has agregado productos. Empieza desde la tienda.
-                  </div>
-                ) : (
-                  cart.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-[1.5rem] border border-[#e4ead8] bg-[#f8faf5] p-4"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="font-semibold text-[#17311b]">{item.name}</p>
-                          <p className="mt-1 text-sm text-[#17311b]/55">
-                            {currency.format(item.price)}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-2 rounded-full border border-[#dbe5cf] bg-white px-2 py-1">
-                          <button
-                            onClick={() => updateQuantity(item.id, -1)}
-                            className="rounded-full p-1 text-[#17311b] hover:bg-[#f4f7ef]"
-                          >
-                            <Minus className="h-4 w-4" />
-                          </button>
-                          <span className="min-w-6 text-center text-sm font-semibold text-[#17311b]">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="rounded-full p-1 text-[#17311b] hover:bg-[#f4f7ef]"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="mt-6 rounded-[1.5rem] border border-[#e4ead8] bg-[#f8faf5] p-5">
-                <div className="flex items-center justify-between text-sm text-[#17311b]/65">
-                  <span>Subtotal</span>
-                  <span>{currency.format(subtotal)}</span>
-                </div>
-
-                <div className="mt-4 border-t border-[#dbe5cf] pt-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#17311b]">
-                      Total estimado
-                    </span>
-                    <span className="text-2xl font-black text-[#17311b]">
-                      {currency.format(subtotal)}
-                    </span>
-                  </div>
-                </div>
-
-                <button className="mt-5 w-full rounded-full bg-[#17311b] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#234826]">
-                  Continuar al pago
+                <button
+                  onClick={() => setShowSizeGuide(false)}
+                  className="rounded-full border border-white/30 bg-white/10 p-2 text-white transition duration-300 hover:bg-white hover:text-black"
+                  aria-label="Cerrar guía de tallas"
+                >
+                  <X className="h-5 w-5" />
                 </button>
               </div>
-            </aside>
-          </div>
-        </section>
-      </main>
 
-      <footer className="border-t border-[#dbe5cf] bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-[#17311b]/55 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <p>© 2026 Tienda de Vita. Bienestar, recuperación y cuidado integral.</p>
-          <div className="flex gap-5">
-            <a href="#inicio" className="transition hover:text-[#17311b]">
-              Inicio
-            </a>
-            <a href="#tienda" className="transition hover:text-[#17311b]">
-              Tienda
-            </a>
-            <a href="#checkout" className="transition hover:text-[#17311b]">
-              Checkout
-            </a>
-          </div>
-        </div>
-      </footer>
-
-      <div
-        className={cn(
-          "fixed inset-0 z-50 transition",
-          cartOpen ? "pointer-events-auto" : "pointer-events-none"
-        )}
-      >
-        <div
-          onClick={() => setCartOpen(false)}
-          className={cn(
-            "absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity",
-            cartOpen ? "opacity-100" : "opacity-0"
-          )}
-        />
-
-        <aside
-          className={cn(
-            "absolute right-0 top-0 flex h-full w-full max-w-md flex-col border-l border-[#dbe5cf] bg-white shadow-2xl transition-transform duration-300",
-            cartOpen ? "translate-x-0" : "translate-x-full"
-          )}
-        >
-          <div className="flex items-center justify-between border-b border-[#dbe5cf] px-6 py-5">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#738D40]">
-                Carrito
+              <p className="mt-4 text-white/85">
+                Revisa las medidas y elige la talla que mejor se adapte a ti.
               </p>
-              <h3 className="mt-1 text-2xl font-black text-[#17311b]">
-                Tus productos
-              </h3>
-            </div>
 
-            <button
-              onClick={() => setCartOpen(false)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#dbe5cf] text-[#17311b]"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
+              <div className="mt-6 overflow-hidden rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl">
+                <div className="grid grid-cols-3 bg-white/15 text-sm font-semibold text-white">
+                  <div className="p-4">Talla</div>
+                  <div className="p-4">Cintura</div>
+                  <div className="p-4">Cadera</div>
+                </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-6">
-            {cart.length === 0 ? (
-              <div className="rounded-[1.5rem] border border-dashed border-[#dbe5cf] bg-[#f8faf5] p-6 text-center text-sm text-[#17311b]/55">
-                Tu carrito está vacío. Agrega productos para continuar.
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {cart.map((item) => (
+                {[
+                  ["S", "60 - 68 cm", "86 - 94 cm"],
+                  ["M", "69 - 76 cm", "95 - 102 cm"],
+                  ["L", "77 - 84 cm", "103 - 110 cm"],
+                  ["XL", "85 - 92 cm", "111 - 118 cm"],
+                ].map((row) => (
                   <div
-                    key={item.id}
-                    className="rounded-[1.5rem] border border-[#e4ead8] bg-[#f8faf5] p-4"
+                    key={row[0]}
+                    className="grid grid-cols-3 border-t border-white/15 text-sm text-white/95"
                   >
-                    <div className="flex gap-4">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="h-20 w-20 rounded-2xl object-cover"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold text-[#17311b]">
-                          {item.name}
-                        </p>
-                        <p className="mt-1 text-sm text-[#17311b]/55">
-                          {currency.format(item.price)}
-                        </p>
-                        <div className="mt-3 flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-2 rounded-full border border-[#dbe5cf] bg-white px-2 py-1">
-                            <button
-                              onClick={() => updateQuantity(item.id, -1)}
-                              className="rounded-full p-1 text-[#17311b] hover:bg-[#f4f7ef]"
-                            >
-                              <Minus className="h-4 w-4" />
-                            </button>
-                            <span className="min-w-6 text-center text-sm font-semibold text-[#17311b]">
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() => updateQuantity(item.id, 1)}
-                              className="rounded-full p-1 text-[#17311b] hover:bg-[#f4f7ef]"
-                            >
-                              <Plus className="h-4 w-4" />
-                            </button>
-                          </div>
-                          <span className="text-sm font-semibold text-[#17311b]">
-                            {currency.format(item.price * item.quantity)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                    <div className="p-4">{row[0]}</div>
+                    <div className="p-4">{row[1]}</div>
+                    <div className="p-4">{row[2]}</div>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
 
-          <div className="border-t border-[#dbe5cf] bg-[#f8faf5] px-6 py-6">
-            <div className="mb-4 flex items-center justify-between text-sm text-[#17311b]/65">
-              <span>Subtotal</span>
-              <span>{currency.format(subtotal)}</span>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <button
+                  onClick={buyOnWhatsApp}
+                  className="inline-flex items-center justify-center rounded-full px-6 py-4 text-sm font-bold text-white transition duration-300 hover:scale-[1.02]"
+                  style={{ backgroundColor: whatsappColor }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = whatsappHover)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = whatsappColor)
+                  }
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Comprar por WhatsApp
+                </button>
+
+                <button
+                  onClick={() => setShowSizeGuide(false)}
+                  className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-6 py-4 text-sm font-bold text-white transition duration-300 hover:bg-white hover:text-black"
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
-            <button className="w-full rounded-full bg-[#17311b] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#234826]">
-              Ir al checkout
-            </button>
           </div>
-        </aside>
-      </div>
-
-      <a
-        href="#checkout"
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-[#17311b] px-6 py-3 text-sm font-semibold text-white shadow-2xl transition hover:scale-105 hover:bg-[#234826]"
-      >
-        <ShoppingCart className="h-4 w-4" />
-        Comprar
-      </a>
-    </div>
+        </div>
+      )}
+    </>
   );
 }
