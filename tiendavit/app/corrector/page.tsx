@@ -370,8 +370,7 @@ export default function HomePage() {
                 Corrector de postura 2 en 1
               </h2>
               <p className="mt-3 max-w-2xl text-neutral-600">
-                Galería visual del producto para mostrar mejor su diseño, ajuste
-                y soporte.
+            
               </p>
             </div>
 
