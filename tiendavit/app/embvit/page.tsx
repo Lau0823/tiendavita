@@ -97,7 +97,7 @@ export default function Page() {
   const ctaBlue = "#2f80ed";
   const ctaBlueHover = "#1f6fe0";
 
-  const whatsappPhone = "573000000000"; // cambia por tu número real
+  const whatsappPhone = "573115813054"; // cambia por tu número real
 
   const buyOnWhatsApp = (text?: string) => {
     const msg = encodeURIComponent(
